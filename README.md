@@ -1,1 +1,26 @@
-# Fieldnotes-live-transit
+# Fieldnotes Live Transit V1.0 — London & Heathrow Edition
+
+An independent, iPhone-first static Progressive Web App. HTML/CSS/standard JavaScript; no npm, Node.js, Python, compilation, or mandatory map API at runtime.
+
+## Install on iPhone
+1. Create a GitHub repository (e.g. `fieldnotes-live-transit`). Upload the **contents** of this project directory to the root of the repo, not the outer directory. Keep paths intact. No credentials are included or required for anonymous TfL access.
+2. Open GitHub repository Settings → Pages → Build and deployment → Deploy from a branch → main / (root). Open the HTTPS Pages URL once published. Direct `file://` opening is not supported because ES modules and service workers require a web origin.
+3. On iPhone Safari open the published address, then Share → Add to Home Screen → Add. Launch from the icon. Set up your commute cards in Home → Edit / Add. To Work and To Home have independent card lists.
+4. Use Trains to search a station by name or alias, filter and add it to Home. A TfL board shows **arrivals**, not confirmed departures. Manual walking time advisory is only calculated for departure predictions, not assumed dwell times.
+5. Open Map for a lightweight geographic station diagram, estimated next-stop markers, and optional permission-based location. Zoom, pan, fit lines or choose a station. Train markers are not GPS positions. No Heathrow Express train positioning is inferred from station-only boards.
+6. Journey uses official TfL journey responses, filters unsupported routes and enforces a user-specified minimum rail-leg interchange gap. Choose Leave now, Depart at, Arrive by or Last journey. Results are provider estimates and may not cover all possible Heathrow Express combinations. Use the official journey planner if no suitable result appears.
+7. Settings: theme, refresh, optional proxy, walking/interchange preferences, alert preferences, backup/import/reset. Export settings periodically: iOS may purge browser storage. For Heathrow Express live departures configure the optional authenticated Worker (`optional-serverless/SETUP.md`).
+
+## Data and limitations
+- TfL API: https://api.tfl.gov.uk/ ; docs https://api.tfl.gov.uk/swagger/ui/index.html ; anonymous quota 50 requests/minute per TfL portal: https://api-portal.tfl.gov.uk/products . The client targets at most 35 TfL requests/minute per open app, with deduplication and failure backoff. Multiple tabs/users can share an upstream quota. Check provider terms and register as appropriate: https://tfl.gov.uk/info-for/open-data-users .
+- National Rail Darwin public JSON LDBWS uses authenticated departure boards. Worker configuration is mandatory for live Heathrow Express departures; no key in frontend. Operator-specific status is attempted via TfL and linked to the operator's official site if unavailable. No claim of confirmed status when the line is absent.
+- Station metadata comes from TfL StopPoints, cached locally for offline reference. Three Heathrow Express CRS codes are seeded (PAD, HXX, HWV) with approximate coordinates; T4 is not a direct stop. No synthetic train data in production. Route sequences are provider based; map lines are schematic straight segments, not surveyed railway geometry. Branch labels are only used when supported by destination/explicit via evidence; ambiguous Northern services remain unknown. Calling points are available for Darwin when supplied, not inferred for TfL arrivals.
+- Stale threshold 90 seconds for predictions and 180 seconds for service status (also stale immediately on failed refresh). Provider timestamps are retained. Live data is held in memory only, so reopening offline retains preferences/station metadata but not previous train predictions. Offline shell requires successful first online load/service worker install. Time formatting uses Europe/London. Ambiguous DST rail clock conversions can be unavailable rather than guessed; physical DST testing still needed.
+- This build does not implement live GPS positioning, fully exhaustive route alternatives, live journey-leg recalculation, automatic walking-route distance, full TfL calling-point reconstruction, remote Web Push registration/delivery, or independent Heathrow Express disruption API. The optional Worker and browser CORS need real deployment verification. In-app alerts are line-based, with severity and time filters; route-specific disruption matching is not implemented. These are limitations rather than simulated functionality.
+- Foreground refresh pauses when hidden and resumes when visible. A failed provider does not substitute sample data. No external analytics. Optional device location is held in memory and used locally for the diagram.
+
+## Attribution
+Powered by TfL Open Data. Contains OS data © Crown copyright and database rights 2016. Geomni UK Map data © and database rights 2019. National Rail Darwin when configured. Verify the exact applicable provider terms and attribution before public distribution. This is not an official TfL, Heathrow Express or National Rail application.
+
+## Project layout
+`index.html`, `css/app.css`, `js/` modules, `manifest.webmanifest`, `sw.js`, `icons/`, `optional-serverless/` and `tests/`. No build step. The `tests/` folder contains browser-based offline unit tests, not a production mock-data source. See `QA.md` for actual versus pending checks.
